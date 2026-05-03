@@ -2,12 +2,12 @@ package com.narxoz.rpg.quest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Traverses only quests whose priority is at least the requested threshold.
  */
 public class PriorityQuestIterator implements QuestIterator {
-
     private final List<Quest> snapshot;
     private int cursor;
 
@@ -24,13 +24,14 @@ public class PriorityQuestIterator implements QuestIterator {
 
     @Override
     public boolean hasNext() {
-        // TODO: return true while the cursor still points at a matching quest.
-        return false;
+        return cursor < snapshot.size();
     }
 
     @Override
     public Quest next() {
-        // TODO: return the current matching quest and advance the cursor.
-        return null;
+        if (!hasNext()) {
+            throw new NoSuchElementException("No more quests matching priority threshold");
+        }
+        return snapshot.get(cursor++);
     }
 }
