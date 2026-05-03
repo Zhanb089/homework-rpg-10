@@ -1,12 +1,12 @@
 package com.narxoz.rpg.quest;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Traverses quests in arrival order.
  */
 public class OrderedQuestIterator implements QuestIterator {
-
     private final List<Quest> snapshot;
     private int cursor;
 
@@ -17,13 +17,14 @@ public class OrderedQuestIterator implements QuestIterator {
 
     @Override
     public boolean hasNext() {
-        // TODO: return true while the cursor still points at an unread quest.
-        return false;
+        return cursor < snapshot.size();
     }
 
     @Override
     public Quest next() {
-        // TODO: return the current quest and advance the cursor.
-        return null;
+        if (!hasNext()) {
+            throw new NoSuchElementException("No more quests in ordered traversal");
+        }
+        return snapshot.get(cursor++);
     }
 }
