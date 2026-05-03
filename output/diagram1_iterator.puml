@@ -1,0 +1,92 @@
+@startuml Iterator Pattern - Quest Log
+skinparam classAttributeIconSize 0
+skinparam classFontSize 13
+skinparam packageStyle rectangle
+hide circle
+title Homework 10 — Iterator Pattern (QuestLog)
+
+interface QuestIterator {
+  +hasNext(): boolean
+  +next(): Quest
+}
+
+class QuestLog {
+  -quests: List<Quest>
+  --
+  +add(quest: Quest): void
+  +size(): int
+  +ordered(): QuestIterator
+  +reverse(): QuestIterator
+  +priorityAtLeast(t: QuestPriority): QuestIterator
+  ~snapshot(): List<Quest>
+}
+
+class Quest {
+  -title: String
+  -priority: QuestPriority
+  -rewardGold: int
+  -urgent: boolean
+  --
+  +getTitle(): String
+  +getPriority(): QuestPriority
+  +getRewardGold(): int
+  +isUrgent(): boolean
+}
+
+enum QuestPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+class OrderedQuestIterator {
+  -snapshot: List<Quest>
+  -cursor: int
+  --
+  +hasNext(): boolean
+  +next(): Quest
+}
+
+class ReverseQuestIterator {
+  -snapshot: List<Quest>
+  -cursor: int
+  --
+  +hasNext(): boolean
+  +next(): Quest
+}
+
+class PriorityQuestIterator {
+  -snapshot: List<Quest>
+  -cursor: int
+  --
+  +hasNext(): boolean
+  +next(): Quest
+}
+
+class RewardSortedQuestIterator <<open/closed proof>> {
+  -snapshot: List<Quest>
+  -cursor: int
+  --
+  +hasNext(): boolean
+  +next(): Quest
+}
+
+QuestLog "1" o-- "*" Quest : stores
+Quest --> QuestPriority
+
+OrderedQuestIterator       ..|> QuestIterator
+ReverseQuestIterator       ..|> QuestIterator
+PriorityQuestIterator      ..|> QuestIterator
+RewardSortedQuestIterator  ..|> QuestIterator
+
+QuestLog ..> OrderedQuestIterator       : creates
+QuestLog ..> ReverseQuestIterator       : creates
+QuestLog ..> PriorityQuestIterator      : creates
+
+OrderedQuestIterator       ..> QuestLog : snapshot()
+ReverseQuestIterator       ..> QuestLog : snapshot()
+PriorityQuestIterator      ..> QuestLog : snapshot()
+RewardSortedQuestIterator  ..> QuestLog : snapshot()
+
+@enduml

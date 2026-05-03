@@ -1,0 +1,76 @@
+@startuml Mediator Pattern - Guild Hall
+skinparam classAttributeIconSize 0
+skinparam classFontSize 13
+hide circle
+title Homework 10 — Mediator Pattern (GuildHall)
+
+interface GuildMediator {
+  +register(member: GuildMember): void
+  +dispatch(topic: String, from: GuildMember, payload: String): void
+}
+
+abstract class GuildMember {
+  -name: String
+  -mediator: GuildMediator
+  --
+  +getName(): String
+  #getMediator(): GuildMediator
+  +{abstract} receive(topic, from, payload): void
+}
+
+class GuildHall {
+  -membersByTopic: Map<String, List<GuildMember>>
+  -lastNotifiedCount: int
+  -totalDispatches: int
+  --
+  +register(member): void
+  +dispatch(topic, from, payload): void
+  +getLastNotifiedCount(): int
+  +getTotalDispatches(): int
+  #addSubscriber(topic, member): void
+  #subscribersFor(topic): List<GuildMember>
+}
+
+class Quartermaster {
+  +requestSupplies(topic, payload): void
+  +receive(topic, from, payload): void
+}
+
+class Scout {
+  +reportRoute(topic, payload): void
+  +receive(topic, from, payload): void
+}
+
+class Healer {
+  +prepareAid(topic, payload): void
+  +receive(topic, from, payload): void
+}
+
+class Captain {
+  +issueOrder(topic, payload): void
+  +receive(topic, from, payload): void
+}
+
+class Loremaster <<open/closed proof>> {
+  +shareLore(topic, payload): void
+  +receive(topic, from, payload): void
+}
+
+GuildHall ..|> GuildMediator
+GuildMember o--> GuildMediator : routes through
+
+Quartermaster --|> GuildMember
+Scout         --|> GuildMember
+Healer        --|> GuildMember
+Captain       --|> GuildMember
+Loremaster    --|> GuildMember
+
+GuildHall "1" o-- "*" GuildMember : subscribers by topic
+
+note bottom of GuildHall
+  Topic-based dispatch.
+  Concrete colleagues never
+  reference each other directly.
+end note
+
+@enduml
