@@ -5,21 +5,69 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Topic-based mediator for the Adventurers' Guild war council.
- */
 public class GuildHall implements GuildMediator {
 
     private final Map<String, List<GuildMember>> membersByTopic = new HashMap<>();
+    private int lastNotifiedCount = 0;
+    private int totalDispatches = 0;
 
     @Override
     public void register(GuildMember member) {
-        // TODO: add the member to the topic lists it should receive.
+        if (member == null) return;
+        
+        if (member instanceof Quartermaster) {
+            addSubscriber("supplies", member);
+            addSubscriber("rewards", member);
+            addSubscriber("orders", member);
+        } else if (member instanceof Scout) {
+            addSubscriber("scouting", member);
+            addSubscriber("urgent", member);
+            addSubscriber("orders", member);
+        } else if (member instanceof Healer) {
+            addSubscriber("healing", member);
+            addSubscriber("urgent", member);
+            addSubscriber("orders", member);
+        } else if (member instanceof Captain) {
+            addSubscriber("orders", member);
+            addSubscriber("urgent", member);
+            addSubscriber("scouting", member);
+        } else if (member instanceof Loremaster) {
+            addSubscriber("lore", member);
+            addSubscriber("curse", member);
+            addSubscriber("history", member);
+        } else {
+            // Fallback for unknown member types — universal channel
+            addSubscriber("orders", member);
+        }
+        System.out.println("  [GuildHall] " + member.getName()
+                + " registered on the council board");
     }
 
     @Override
     public void dispatch(String topic, GuildMember from, String payload) {
-        // TODO: notify registered members for the topic without direct colleague calls.
+        totalDispatches++;
+        List<GuildMember> subs = subscribersFor(topic);
+        int notified = 0;
+        System.out.println("  [GuildHall] dispatch on <" + topic + "> from "
+                + (from == null ? "council" : from.getName())
+                + ": \"" + payload + "\"");
+        for (GuildMember m : subs) {
+            if (m == from) continue; 
+            m.receive(topic, from, payload);
+            notified++;
+        }
+        if (notified == 0) {
+            System.out.println("  [GuildHall] (no subscribers reacted)");
+        }
+        lastNotifiedCount = notified;
+    }
+
+    public int getLastNotifiedCount() {
+        return lastNotifiedCount;
+    }
+
+    public int getTotalDispatches() {
+        return totalDispatches;
     }
 
     protected void addSubscriber(String topic, GuildMember member) {
